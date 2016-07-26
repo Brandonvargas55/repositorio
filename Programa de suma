@@ -1,0 +1,19 @@
+//programa de suma 
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+
+int main(int argc, char *argv[]) {
+	int a,b,c;
+	printf("valor de a= ");
+	scanf("%d", &a);
+	printf("valor de b= ");
+	scanf("%d", &b);//aqui terminan los valores de la suna.
+	c=a+b;
+	printf("la suma de a+b= %d", c);
+	return 0;
+}
