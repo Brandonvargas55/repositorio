@@ -1,0 +1,434 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include<windows.h>
+#include <conio.h>
+
+
+#define enter 13
+#define izquierda 75
+#define derecha 77
+#define barra 32
+
+
+#define Vacio ' '
+#define FichaJugador1 219
+#define FichaJugador2 'O'
+#define FichaVacia ' '
+
+
+#define EspacioCentrar "                       "
+#define Horizontal 196
+#define Vertical 179
+#define SuperiorIzquierda 218
+#define SuperiorCentral 194
+#define SuperiorDerecha 191
+#define CentralIzquierda 195
+#define CentralCentral 197
+#define CentralDerecha 180
+#define InferiorIzquierda 192
+#define InferiorCentral 193
+#define InferiorDerecha 217
+
+
+void inicializar(int tablero[8][8]);
+void imprimir (int tablero[8][8], int ficha, int columna);
+int partida(int tablero[8][8], int ficha);
+int ubicarFicha(int tablero[8][8], int ficha, int columna);
+int esGanador(int tablero[8][8], int ficha);
+int tableroLleno(int tablero[8][8]);
+void capturaJugador(char jugador[1024], int numeroJugador);
+int dados();
+void pausa();
+
+char jugador1[1024];
+char jugador2[1024];
+char ganador[1024];
+
+
+void inicializar(int tablero[8][8])
+{
+	int i, j;
+	for(i = 0; i < 8; i++)
+	{
+		for(j = 0; j < 8; j++)
+		{
+			tablero[i][j] = Vacio;
+		}
+	}
+}
+
+void imprimir (int tablero[8][8], int ficha, int columna)
+{
+	int i,j;
+
+	system("CLS");
+
+	printf("%s ", EspacioCentrar);
+	for(j = 0; j < 8; j++){
+		if (j == columna)
+		{
+			printf(" %c  ", ficha);
+		}
+		else
+		{
+			printf("    ");
+		}
+	}
+
+    printf("\n%s%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 
+	        EspacioCentrar, SuperiorIzquierda, 
+	        Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+			Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+			Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+			Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+	        Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+	        Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+	        Horizontal, Horizontal, Horizontal, SuperiorCentral, 
+			Horizontal, Horizontal, Horizontal, SuperiorDerecha);
+	
+	for(i = 0; i < 8; i++)
+	{
+		printf("%s%c", EspacioCentrar, Vertical);
+		for(j = 0; j < 8; j++){
+			printf(" %c %c", tablero[i][j], Vertical);
+		}
+		if (i < 7)
+		{
+		
+	    	printf("\n%s%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 
+		    	    EspacioCentrar, CentralIzquierda, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralCentral, 
+	    		    Horizontal, Horizontal, Horizontal, CentralDerecha);
+		}
+	}
+
+    printf("\n%s%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 
+	        EspacioCentrar, InferiorIzquierda, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorCentral, 
+	        Horizontal, Horizontal, Horizontal, InferiorDerecha);
+
+	if (ficha == FichaJugador1)
+	{
+		printf("Turno de: %s\n", jugador1);
+	}
+	else if (ficha == FichaJugador2)
+	{
+		printf("Turno de: %s\n", jugador2);
+	}
+	else if (strcmp(ganador, "") ==0)
+	{
+		printf("Empate\n");
+	}
+	else
+	{
+		printf("Ganador: %s\n", ganador);
+	}
+	printf("[<-] Izquierda     [->] Derecha     [Enter] Jugar     [X] Salir");
+}
+
+
+int partida(int tablero[8][8], int ficha)	
+{
+	char tecla ='m';
+	int columna = 0;
+	int cambiado = 0;
+	int gano = 0;
+	int empato = 0;
+	int fichaGanador = Vacio;
+	inicializar(tablero);
+	strcpy(ganador, "");
+	imprimir(tablero, ficha, 0);
+	while(toupper(tecla) != 'X' && !gano && !empato)
+	{
+		if(kbhit())
+		{
+			cambiado = 0;
+			tecla = getch();
+			if (tecla == izquierda)
+        	{
+        		if (columna > 0)
+				{
+					columna--; 
+					cambiado = 1;
+				}
+			}
+			if (tecla == derecha)
+			{
+				if (columna < 7)
+				{
+	      			columna++; 
+	      			cambiado = 1;
+		  		}
+			}
+			if (tecla == enter)
+			{
+				cambiado = ubicarFicha(tablero, ficha, columna);
+				if (cambiado)
+				{
+				
+					gano = esGanador(tablero, ficha);
+					if (!gano)
+					{
+					
+						if (tableroLleno(tablero))
+						{
+							fichaGanador = Vacio;
+							ficha = Vacio;
+							empato = 1;
+						}
+						else
+						{
+							
+							if (ficha == FichaJugador1)
+							{
+								ficha = FichaJugador2;
+							}
+							else
+							{
+								ficha = FichaJugador1;
+							}
+						}
+					}
+					else
+					{
+						fichaGanador = ficha;
+						if (fichaGanador == FichaJugador1)
+						{
+							strcpy(ganador, jugador1);
+						}
+						else
+						{
+							strcpy(ganador, jugador2);
+						}
+						ficha = Vacio;
+					}
+				}
+			}
+			if (cambiado != 0)
+			{
+				imprimir(tablero, ficha, columna);
+			}
+	 	}
+	 	else
+		{
+			Sleep(100);
+		}
+	}
+	return fichaGanador;
+}
+
+
+int ubicarFicha(int tablero[8][8], int ficha, int columna)
+{
+	int i;
+	int result = 0;
+	for (i = 7; i >=0; i--)
+	{
+		if (tablero[i][columna] == Vacio)
+		{
+			tablero[i][columna] = ficha;
+			result = 1;
+			break;
+		}
+	}
+	return result;
+}
+
+
+int esGanador(int tablero[8][8], int ficha)
+{
+	int i, j,horizontal=0,vertical=0,diagonalasc=0,diagonaldesc=0;
+	
+	for (i = 0; i < 8; i++)
+	{
+		for (j = 0; j < 8 - 3; j++)
+		{
+			if (tablero[i][j] == ficha && tablero[i][j+1] == ficha && tablero[i][j+2] == ficha && tablero[i][j+3] == ficha)
+			{
+				return 1; 
+				horizontal++;
+			}
+		}
+	}
+	
+	for (j = 0; j < 8; j++)
+	{
+		for (i = 0; i < 8 - 3; i++)
+		{
+			if (tablero[i][j] == ficha && tablero[i+1][j] == ficha && tablero[i+2][j] == ficha && tablero[i+3][j] == ficha)
+			{
+				return 1; 
+				vertical++;
+			}
+		}
+	}
+
+	for (i = 0; i < 8 - 3; i++)
+	{
+		for (j = 0; j < 8 - 3; j++)
+		{
+			if (tablero[i][j] == ficha && tablero[i+1][j+1] == ficha && tablero[i+2][j+2] == ficha && tablero[i+3][j+3] == ficha)
+			{
+				return 1; 
+				diagonaldesc++;
+			}
+		}
+	}
+
+	for (i = 3; i < 8; i++)
+	{
+		for (j = 0; j < 8 - 3; j++)
+		{
+			if (tablero[i][j] == ficha && tablero[i-1][j+1] == ficha && tablero[i-2][j+2] == ficha && tablero[i-3][j+3] == ficha)
+			{
+				return 1; 
+				diagonalasc++;
+				
+			}
+		}
+	}
+	return 0; 
+}
+
+
+int tableroLleno(int tablero[8][8])
+{
+	int j;
+	for (j = 0; j < 8; j++)
+	{
+		if (tablero[0][j] == Vacio)
+		{
+			return 0; 
+		}
+	}
+	return 1; 
+}
+
+
+void capturaJugador(char jugador[1024], int numeroJugador)
+{
+	do {
+		printf("\nIntruduzca el nombre del jugador %d: ", numeroJugador);
+		fflush(stdin);
+		gets(jugador);
+	} while (strcmp(jugador, "") == 0);
+}
+
+void pausa()
+{
+	char tecla;
+	printf("\nPresiona cualquier tecla para continuar");
+	fflush(stdin);
+	tecla = getch();
+}
+
+
+int dados()
+{
+	int dado1, dado2;
+	char tecla;
+	int result;
+	system("CLS");
+	do {
+    	printf("\nPresiona [Enter] para lanzar el dado del jugador: %s", jugador1);
+		do {
+			fflush(stdin);
+			tecla = getch();
+			if(tecla == enter)
+			{
+				dado1 = rand() % 6 + 1;
+			}
+		} while (tecla != enter);
+		printf("\nEl jugador %s saca: %d", jugador1, dado1);
+	    printf("\nPresiona [Enter] para lanzar el dado del jugador: %s", jugador2);
+    	do {
+			fflush(stdin);
+			tecla = getch();
+			if(tecla == enter)
+			{
+				dado2 = rand() % 6 + 1;
+			}
+		} while (tecla != enter);
+		printf("\nEl jugador %s saca: %d", jugador2, dado2);
+		if (dado1 == dado2)
+		{
+			printf("\nEmpate... se vuelven a lanzar los dados");
+		}
+	} while (dado1 == dado2);
+	if (dado1 > dado2)
+	{
+		printf("\nInicia el jugador: %s", jugador1);
+		result = FichaJugador1;
+	}
+	else
+	{
+		printf("\nInicia el jugador: %s", jugador2);
+		result = FichaJugador2;
+	}
+	pausa();
+	return result;
+}
+
+// Programa principal
+int main(int argc, char *argv[])
+{
+	int tablero[8][8]; 
+	int fichaJugador = Vacio; 
+	int numeroPartidas = 0;
+	int ganadasJugador1 = 0;
+	int ganadasJugador2 = 0;
+	int empates = 0;
+	
+	capturaJugador(jugador1, 1);
+	capturaJugador(jugador2, 2);
+	do
+	{
+		if (fichaJugador == Vacio){
+	
+			srand(time(0));
+			fichaJugador=dados();
+		}
+		numeroPartidas++;
+		fichaJugador = partida(tablero, fichaJugador);
+		if (fichaJugador == FichaJugador1)
+		{
+			ganadasJugador1++;
+		}
+		else if (fichaJugador == FichaJugador2)
+		{
+			ganadasJugador2++;
+		}
+		else
+		{
+			empates++;
+		}
+		printf("\nPartidas ganadas por %s: %d", jugador1, ganadasJugador1);
+		printf("\nPartidas ganadas por %s: %d", jugador2, ganadasJugador2);
+		printf("\nPartidas empatadas: %d", empates);
+		pausa();
+	} while (numeroPartidas < 4 || ganadasJugador1 == ganadasJugador2);
+	printf("\nTorneo terminado.");
+	if (ganadasJugador1 > ganadasJugador2)
+	{
+		printf("\nEl jugador1: %s es el ganador",jugador1);
+	}
+	else
+	{
+		 printf("\nEl jugador2: %s es el ganador",jugador2);
+	}
+	pausa();
+	return 0;
+}
